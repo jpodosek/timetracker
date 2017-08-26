@@ -15,18 +15,29 @@
         <th></th>
       </tr>
     </thead>
-    <form method="post" action="update">
+    <form method="post" action="/update">
     <tbody>
       <tr>
-        <td><input placeholder="mm/dd/yyyy" required="" value="08/12/17" name="date" type="date"></td>
-          <td><input value="0" name="mondayHours" id="Monday" type="number"><!-- {{#mondayHours}} {{mondayHours}} {{/mondayHours}} --> </td>
-          <td><input value="0" name="tuesdayHours" id="Tuesday" type="number" ></td>
-          <td><input value="0" name="wednesdayHours" id="Wednesday" type="number"></td>
-          <td><input value="0" name="thursdayHours" id="Thursday" type="number"></td>
-          <td><input value="0" name="fridayHours" id="Friday" type="number"></td>
-        <td><!--  {{#totalHours}} {{ totalHours }} {{/totalHours}}--></td>
-        <td><button name="action" value="update">Update</button></td>
-        <td><button name="action" value="submit">Submit</button></td>
+      {{#hasNoItem}}
+      <td><input placeholder="mm/dd/yyyy" required="" value="08/12/17" name="date" type="date"></td>
+          <td><input value="0" name="mondayHours" type="number"> </td>
+          <td><input value="0" name="tuesdayHours" type="number" ></td>
+          <td><input value="0" name="wednesdayHours" type="number"></td>
+          <td><input value="0" name="thursdayHours" type="number"></td>
+          <td><input value="0" name="fridayHours"  type="number"></td>
+          <td>Total: 0</td>
+       {{/hasNoItem}}   
+        {{#hasItem}}  
+        <td><input placeholder="mm/dd/yyyy" required="" value="{{ date }}" name="date" type="date"></td>
+          <td><input value="{{mondayHours}}" name="mondayHours" type="number"> </td>
+          <td><input value="{{tuesdayHours}}" name="tuesdayHours" type="number" ></td>
+          <td><input value="{{wednesdayHours}}" name="wednesdayHours" type="number"></td>
+          <td><input value="{{thursdayHours}}" name="thursdayHours" type="number"></td>
+          <td><input value="{{fridayHours}}"  name="fridayHours" type="number"></td>
+        <td>Total:{{ totalHours }} <input type="hidden" name="id" value="{{ id }}"></td>
+        {{/hasItem}}
+        <td><button name="formButtons" value="update">Update</button></td>
+        <td><button name="formButtons" value="submit">Submit</button></td>
       </tr>
     </tbody>
     </form>
@@ -43,7 +54,7 @@
         <th>Total</th>
       </tr>
     </thead>
-     <!--   {{#hasTimeEntries}} --> 
+  {{#hasTimeEntries}}
     <tbody>
       <tr>
         <td>8/10/2017</td>
@@ -64,6 +75,6 @@
         <td>34.0</td>
       </tr>
     </tbody>
-    <!-- {{/hasTimeEntries}} -->
+  {{/hasTimeEntries}}
   </table></div>
 </div>

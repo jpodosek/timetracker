@@ -11,6 +11,7 @@ public class TimeEntry {
 	private double wednesdayHours;
 	private double thursdayHours;
 	private double fridayHours;
+	private double totalHours;
 	//private String mondayHours;
    // private String[] daysOfTheWeek = {"Monday" , "Tuesday", "Wednesday", "Thursday", "Friday"};
 	//private double totalHours; //total weekly hours for an item
@@ -20,7 +21,12 @@ public class TimeEntry {
 	}
 	
 	public double getTotalHours() {
-		return mondayHours + tuesdayHours + wednesdayHours + thursdayHours + fridayHours;
+		totalHours =  mondayHours + tuesdayHours + wednesdayHours + thursdayHours + fridayHours;
+		return totalHours;
+	}
+	
+	public void setTotalHours(double totalHours) {
+		this.totalHours = totalHours;
 	}
 	
 	
@@ -41,7 +47,7 @@ public class TimeEntry {
     }
 
 
-	public boolean isSubmitted() {
+	public boolean getIsSubmitted() {
 		return isSubmitted;
 	}
 
