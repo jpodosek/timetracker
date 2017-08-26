@@ -2,6 +2,7 @@ package com.libertymutual.goforcode.timetracker.controllers;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -20,7 +21,6 @@ import com.libertymutual.goforcode.timetracker.services.TimeTrackerRepository;
 public class TimeTrackerController {
 	// private int sum = 0;
 	private TimeTrackerRepository repository;
-	private TimeEntry currentTimeEntry;
 
 	public TimeTrackerController(TimeTrackerRepository repository) {
 		this.repository = repository;
@@ -32,38 +32,76 @@ public class TimeTrackerController {
 	// }
 	@GetMapping("")
 	public String redirectToApplication() {
-		return "redirect:/update";
+		return "time/default";
+		// return "redirect:/update";
 	}
 
 	// can't test this until getAll is finished
 	@GetMapping("update")
-	public String showDefaultPage(Model model) {
-		List<TimeEntry> timeEntryList = repository.getMasterList();
-		currentTimeEntry = repository.getCurrentTimeEntry();
-		model.addAttribute("timeEntryList", timeEntryList);
-		model.addAttribute("hasTimeEntries", !timeEntryList.isEmpty());
+	public String showUpdatePage(Model model) {
+
+		List<TimeEntry> timeEntryList = new ArrayList<TimeEntry>();
+		timeEntryList = repository.getTimeSheetHistory();
 		
-		//when hitting submit, will need to clear out currentEntry in repository so this can kick off again
-		if (currentTimeEntry == null) {
-			System.out.println("currentTimeEntry is null");
-			model.addAttribute("hasNoItem", true);
-			model.addAttribute("hasItem", false);
-		} else {
-			DateFormat format = new SimpleDateFormat("MM/dd/yy", Locale.ENGLISH);
-			String prettyDate = format.format(currentTimeEntry.getDate());
-			System.out.println("currentTimeEntry is not null");
-			model.addAttribute("hasNoItem", false);
-			model.addAttribute("hasItem", true);
-			model.addAttribute("date", prettyDate);
-			model.addAttribute("mondayHours", currentTimeEntry.getMondayHours());
-			model.addAttribute("tuesdayHours", currentTimeEntry.getTuesdayHours());
-			model.addAttribute("wednesdayHours", currentTimeEntry.getWednesdayHours());
-			model.addAttribute("thursdayHours", currentTimeEntry.getThursdayHours());
-			model.addAttribute("fridayHours", currentTimeEntry.getFridayHours());
-			model.addAttribute("totalHours", currentTimeEntry.getTotalHours());
-			model.addAttribute("id", currentTimeEntry.getId()); //this id will be = 1
-			System.out.println(currentTimeEntry.getId());
-		}
+		TimeEntry timeEntry = new TimeEntry();
+		timeEntry = repository.getTempTimeSheet();
+
+		model.addAttribute("timeEntryList", timeEntryList);
+		model.addAttribute("entry", timeEntry);
+		model.addAttribute("hasTimeEntries", !timeEntryList.isEmpty());
+
+		// submitted status is set to false in writeTempTimeSheet
+		// if (timeEntry.getSubmittedStatus()) {
+		// System.out.println("currentTimeEntry is null");
+		// model.addAttribute("hasNoItem", true);
+		// model.addAttribute("hasItem", false);
+		// } else {
+		// DateFormat format = new SimpleDateFormat("MM/dd/yy", Locale.ENGLISH);
+		// String prettyDate = format.format(timeEntry.getDate());
+
+		// model.addAttribute("hasNoItem", false);
+		// model.addAttribute("hasItem", true);
+		// model.addAttribute("date", prettyDate);
+		model.addAttribute("dateString", timeEntry.getDateString());
+		model.addAttribute("mondayHours", timeEntry.getMondayHours());
+		model.addAttribute("tuesdayHours", timeEntry.getTuesdayHours());
+		model.addAttribute("wednesdayHours", timeEntry.getWednesdayHours());
+		model.addAttribute("thursdayHours", timeEntry.getThursdayHours());
+		model.addAttribute("fridayHours", timeEntry.getFridayHours());
+		model.addAttribute("totalHours", timeEntry.getTotalHours());
+		model.addAttribute("id", timeEntry.getId()); // this id will be = 1
+		System.out.println(timeEntry.getId());
+		// }
+
+		return "time/update";
+	}
+	
+	@GetMapping("default")
+	public String showDefaultPage(Model model) {
+		List<TimeEntry> timeEntryList = new ArrayList<TimeEntry>();
+		timeEntryList = repository.getTimeSheetHistory();
+		
+		TimeEntry timeEntry = new TimeEntry();
+		timeEntry = repository.getTempTimeSheet();
+		
+		//TimeEntry timeEntry = new TimeEntry();
+		// this will need to be handled once submit is performed
+		// right now its just a null TimeEntryList to allow the mustache on page to work
+	
+
+		model.addAttribute("timeEntryItems", timeEntryList);
+		model.addAttribute("hasTimeEntries", !timeEntryList.isEmpty());
+
+		model.addAttribute("dateString", timeEntry.getDateString());
+		model.addAttribute("mondayHours", timeEntry.getMondayHours());
+		model.addAttribute("tuesdayHours", timeEntry.getTuesdayHours());
+		model.addAttribute("wednesdayHours", timeEntry.getWednesdayHours());
+		model.addAttribute("thursdayHours", timeEntry.getThursdayHours());
+		model.addAttribute("fridayHours", timeEntry.getFridayHours());
+		model.addAttribute("totalHours", timeEntry.getTotalHours());
+	//	model.addAttribute("id", timeEntry.getId()); // this id will be = 1
+		System.out.println(timeEntry.getId());
+		// }
 
 		return "time/default";
 	}
@@ -73,20 +111,19 @@ public class TimeTrackerController {
 
 	@PostMapping("update")
 	public String create(TimeEntry timeEntry, String formButtons) {
-		if (formButtons.equals("update"))
-		{
-			if (timeEntry.getId() == 0) {
-				repository.create(timeEntry);				
-			} else {
-//				repository.update(timeEntry);
-			}
+		if (formButtons.equals("update")) {
+			repository.writeTempTimeSheet(timeEntry);
+			return "redirect:/update";
 
-
-		} else {
+		} else if (formButtons.equals("submit")) {
+			repository.writeToTimeSheetHistory(timeEntry);
+			return "redirect:/default";
 			
+		} else {
+			System.err.println("This should be unreachable code. Update or Submit were not trigger");
+			return null;
 		}
 
-		return "redirect:/update";
 	}
 
 }

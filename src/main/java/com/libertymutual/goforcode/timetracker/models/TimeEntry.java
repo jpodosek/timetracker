@@ -12,65 +12,68 @@ public class TimeEntry {
 	private double thursdayHours;
 	private double fridayHours;
 	private double totalHours;
-	//private String mondayHours;
-   // private String[] daysOfTheWeek = {"Monday" , "Tuesday", "Wednesday", "Thursday", "Friday"};
-	//private double totalHours; //total weekly hours for an item
-    
+	private String dateString;
+	// private String mondayHours;
+	// private String[] daysOfTheWeek = {"Monday" , "Tuesday", "Wednesday",
+	// "Thursday", "Friday"};
+	// private double totalHours; //total weekly hours for an item
+
 	public TimeEntry() {
 		// TODO Auto-generated constructor stub
 	}
-	
+
 	public double getTotalHours() {
-		totalHours =  mondayHours + tuesdayHours + wednesdayHours + thursdayHours + fridayHours;
+		totalHours = mondayHours + tuesdayHours + wednesdayHours + thursdayHours + fridayHours;
 		return totalHours;
 	}
-	
+
 	public void setTotalHours(double totalHours) {
 		this.totalHours = totalHours;
 	}
-	
-	
+
 	public int getId() {
-        return id;
-    }
-    public void setId(int id) {
-        this.id = id;
-    }
-   
-   
-    public Date getDate() {
-    	return date;
-    }
-    
-    public void setDate(Date date) {
-    	this.date = date;
-    }
+		return id;
+	}
 
+	public void setId(int id) {
+		this.id = id;
+	}
 
-	public boolean getIsSubmitted() {
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
+	}
+
+	public String getDateString() {
+		return dateString;
+	}
+
+	public void setDateString(String dateString) {
+		this.dateString = dateString;
+	}
+
+	public boolean getSubmittedStatus() {
 		return isSubmitted;
 	}
 
-	public void setSubmitted(boolean isSubmitted) {
+	public void setSubmittedStatus(boolean isSubmitted) {
 		this.isSubmitted = isSubmitted;
 	}
-	
 
 	public double getMondayHours() {
 		return mondayHours;
 	}
 
-	
 	public double getTuesdayHours() {
 		return tuesdayHours;
 	}
 
-
 	public double getWednesdayHours() {
 		return wednesdayHours;
 	}
-
-	
 
 	public double getThursdayHours() {
 		return thursdayHours;
@@ -83,22 +86,21 @@ public class TimeEntry {
 	public void setMondayHours(double mondayHours) {
 		this.mondayHours = mondayHours;
 	}
-	
+
 	public void setTuesdayHours(double tuesdayHours) {
 		this.tuesdayHours = tuesdayHours;
 	}
-	
+
 	public void setWednesdayHours(double wednesdayHours) {
 		this.wednesdayHours = wednesdayHours;
 	}
-	
+
 	public void setThursdayHours(double thursdayHours) {
 		this.thursdayHours = thursdayHours;
 	}
-	
+
 	public void setFridayHours(double fridayHours) {
 		this.fridayHours = fridayHours;
 	}
-		
-	
+
 }

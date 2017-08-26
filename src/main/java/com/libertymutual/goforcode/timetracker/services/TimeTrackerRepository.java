@@ -25,77 +25,29 @@ import com.libertymutual.goforcode.timetracker.models.TimeEntry;
 public class TimeTrackerRepository {
 	private int nextId = 1;
 	private int currentId = 1;
-	// private int currentMaxId = 1;
 	List<TimeEntry> timeEntryList;
-	TimeEntry currentEntry;
 
 	public TimeTrackerRepository() {
 		timeEntryList = new ArrayList<TimeEntry>();
 	}
 
-	public TimeEntry getCurrentTimeEntry() {
-		List<TimeEntry> list = getMasterList();
-		for (TimeEntry entry : list) {
-			if (!entry.getIsSubmitted()) {
-				return entry;
-			}
-		}
-		return null;
-	}
-
-	public void create(TimeEntry item) {
-		System.out.println("the create method is running");
-
-		// If this is the first time we've seen this specific TimeEntry,
-		// we need to assign the next id to this,
-		// then we want to save it to the file and
-		// set it to currentEntry
-		if (item.getId() == 0) {
-			currentEntry = item;
-			item.setId(nextId);
-			currentId = nextId;
-			nextId += 1;
-			timeEntryList.add(item);
-		}
-
-		// If item has the same id as currentEntry, we just want
-		// to update values and save them to the file
-		if (item.getId() == currentId) {
-			for (TimeEntry entry : timeEntryList) {
-				if (entry.getId() == item.getId()) {
-					entry.setDate(item.getDate());
-					entry.setFridayHours(item.getFridayHours());
-					entry.setMondayHours(item.getMondayHours());
-					entry.setSubmitted(item.getIsSubmitted());
-					entry.setThursdayHours(item.getThursdayHours());
-					entry.setTotalHours(item.getTotalHours());
-					entry.setTuesdayHours(item.getTuesdayHours());
-					entry.setWednesdayHours(item.getWednesdayHours());
-				}
-				currentEntry = entry;
-			}
-		}
+	public void writeTempTimeSheet(TimeEntry entry) {
+		System.out.println("writeTempTimeSheet");
+		int tempId = 1;
 
 		// Create csv file
-		try (FileWriter writer = new FileWriter("timetracker.csv", false);
+		try (FileWriter writer = new FileWriter("timesheet_week_temp.csv", false); // false makes this overwrite
 				CSVPrinter printer = CSVFormat.DEFAULT.print(writer)) {
 
-			// maybe only update currentId once submitted
-			// make sure item does not already exist, before incrementing id;
-			// if item does already exist, item.getId() should match nextId value;
-			// if (item.getId() != currentId) {
-			// nextId += 1;
-			// }
+			entry.setId(tempId);
 
-			for (TimeEntry entry : timeEntryList) {
-				DateFormat format = new SimpleDateFormat("MM/dd/yy", Locale.ENGLISH);
-				String prettyDate = format.format(entry.getDate());
-				String[] record = { Integer.toString(entry.getId()), prettyDate,
-						Double.toString(entry.getMondayHours()), Double.toString(entry.getTuesdayHours()),
-						Double.toString(entry.getWednesdayHours()), Double.toString(entry.getThursdayHours()),
-						Double.toString(entry.getFridayHours()), Double.toString(entry.getTotalHours()) };
-				printer.printRecord(record);
-			}
+			entry.setSubmittedStatus(false);
+
+			String[] record = { Integer.toString(entry.getId()), entry.getDateString(),
+					Double.toString(entry.getMondayHours()), Double.toString(entry.getTuesdayHours()),
+					Double.toString(entry.getWednesdayHours()), Double.toString(entry.getThursdayHours()),
+					Double.toString(entry.getFridayHours()), Double.toString(entry.getTotalHours()) };
+			printer.printRecord(record);
 
 		} catch (IOException e) {
 			System.out.println("Error on create method.");
@@ -103,40 +55,88 @@ public class TimeTrackerRepository {
 
 	}
 
-	public List<TimeEntry> getMasterList() {
-		List<TimeEntry> timeEntryList = new ArrayList<TimeEntry>();
+	public TimeEntry getTempTimeSheet() {
+
+		TimeEntry entry = new TimeEntry();
 		int currentMaxId = 0;
 		// store to-do-list in a reader
-		try (Reader in = new FileReader("timetracker.csv"); CSVParser parser = new CSVParser(in, CSVFormat.DEFAULT)) {
+		try (Reader in = new FileReader("timesheet_week_temp.csv");
+				CSVParser parser = new CSVParser(in, CSVFormat.DEFAULT)) {
 
 			// get all the items from the csv file and store into CSVRecord list
 			List<CSVRecord> csvList = parser.getRecords();
 
-			// iterate through list, and for each record, extract fields into variables
 			for (CSVRecord csvRecord : csvList) {
-				String idColumn = csvRecord.get(0);
-				String dateColumn = csvRecord.get(1);
-				String mondayColumn = csvRecord.get(2);
-				String tuesdayColumn = csvRecord.get(3);
-				String wednesdayColumn = csvRecord.get(4);
-				String thursdayColumn = csvRecord.get(5);
-				String fridayColumn = csvRecord.get(6);
+				// parse each field into appropriate value and add to entry
+				entry.setId(Integer.parseInt(csvRecord.get(0)));
+				// DateFormat format = new SimpleDateFormat("MM/dd/yy", Locale.ENGLISH);
+				// entry.setDate(format.parse(csvRecord.get(1)));
+				entry.setDateString(csvRecord.get(1));
+				entry.setMondayHours(Double.parseDouble(csvRecord.get(2)));
+				entry.setTuesdayHours(Double.parseDouble(csvRecord.get(3)));
+				entry.setWednesdayHours(Double.parseDouble(csvRecord.get(4)));
+				entry.setThursdayHours(Double.parseDouble(csvRecord.get(5)));
+				entry.setFridayHours(Double.parseDouble(csvRecord.get(6)));
+
+				System.out.println(entry);
+			}
+
+		} catch (FileNotFoundException e) {
+			System.err.println("Could not find file");
+
+		} catch (IOException e) {
+			System.err.println("Could not read file");
+		}
+		return entry;
+		// return timeEntryList;
+	}
+
+	public void writeToTimeSheetHistory(TimeEntry entry) {
+		System.out.println("writeTempTimeSheet");
+
+		// Create csv file
+		try (FileWriter writer = new FileWriter("timesheet_history.csv", true); // true makes this append
+				CSVPrinter printer = CSVFormat.DEFAULT.print(writer)) {
+
+			entry.setId(nextId);
+			nextId += 1;
+			entry.setSubmittedStatus(true);
+
+			String[] record = { Integer.toString(entry.getId()), entry.getDateString(),
+					Double.toString(entry.getMondayHours()), Double.toString(entry.getTuesdayHours()),
+					Double.toString(entry.getWednesdayHours()), Double.toString(entry.getThursdayHours()),
+					Double.toString(entry.getFridayHours()), Double.toString(entry.getTotalHours()) };
+			printer.printRecord(record);
+		} catch (IOException e) {
+			System.out.println("Error on create method.");
+		}
+
+	}
+	
+	public List<TimeEntry> getTimeSheetHistory() {
+		List<TimeEntry> timeEntryList = new ArrayList<TimeEntry>();
+		int currentMaxId = 0;
+		// store to-do-list in a reader
+		try (Reader in = new FileReader("timesheet_history.csv"); 
+		CSVParser parser = new CSVParser(in, CSVFormat.DEFAULT)) {
+
+			// get all the items from the csv file and store into CSVRecord list
+			List<CSVRecord> list = parser.getRecords();
+
+			for (CSVRecord csvRecord : list) {
 
 				// add each of these variable values to to-do-list
 				TimeEntry entry = new TimeEntry();
 
 				// parse each field into appropriate value and add to entry
-				entry.setId(Integer.parseInt(idColumn));
-				DateFormat format = new SimpleDateFormat("MM/dd/yy", Locale.ENGLISH);
-				entry.setDate(format.parse(dateColumn));
-				entry.setMondayHours(Double.parseDouble(mondayColumn));
-				entry.setTuesdayHours(Double.parseDouble(tuesdayColumn));
-				entry.setWednesdayHours(Double.parseDouble(wednesdayColumn));
-				entry.setThursdayHours(Double.parseDouble(thursdayColumn));
-				entry.setFridayHours(Double.parseDouble(fridayColumn));
-
-				System.out.println(entry);
-				// Add item to timeEntryList
+				entry.setId(Integer.parseInt(csvRecord.get(0)));
+				entry.setDateString(csvRecord.get(1));
+				entry.setMondayHours(Double.parseDouble(csvRecord.get(2)));
+				entry.setTuesdayHours(Double.parseDouble(csvRecord.get(3)));
+				entry.setWednesdayHours(Double.parseDouble(csvRecord.get(4)));
+				entry.setThursdayHours(Double.parseDouble(csvRecord.get(5)));
+				entry.setFridayHours(Double.parseDouble(csvRecord.get(6)));
+				// add this entry to Entrylist 
 				timeEntryList.add(entry);
 
 				// this allows ids to continue incrementing after restarting app
@@ -144,17 +144,11 @@ public class TimeTrackerRepository {
 					currentMaxId = entry.getId();
 				}
 				currentId = currentMaxId + 1;
-
 			}
-
 		} catch (FileNotFoundException e) {
 			System.out.println("File not found");
 		} catch (IOException e) {
 			System.out.println("IO Exception");
-		} catch (ParseException e) {
-			System.out.println("The date did not parse from String to a date format");
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		return timeEntryList;
 	}

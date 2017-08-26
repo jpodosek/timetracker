@@ -19,14 +19,19 @@
 				<tbody>
 					<tr>
 						<td><input placeholder="mm/dd/yyyy" required=""
-							value="12/13/16" name="dateString" type="date"></td>
-						<td><input value="0" name="mondayHours" type="number">
-						</td>
-						<td><input value="0" name="tuesdayHours" type="number"></td>
-						<td><input value="0" name="wednesdayHours" type="number"></td>
-						<td><input value="0" name="thursdayHours" type="number"></td>
-						<td><input value="0" name="fridayHours" type="number"></td>
-						<td>Total:0</td>
+							value="{{ dateString }}" name="date" type="date"></td>
+						<td><input value="{{mondayHours}}" name="mondayHours"
+							type="number"></td>
+						<td><input value="{{tuesdayHours}}" name="tuesdayHours"
+							type="number"></td>
+						<td><input value="{{wednesdayHours}}" name="wednesdayHours"
+							type="number"></td>
+						<td><input value="{{thursdayHours}}" name="thursdayHours"
+							type="number"></td>
+						<td><input value="{{fridayHours}}" name="fridayHours"
+							type="number"></td>
+						<td>Total:{{ totalHours }} <!-- <input type="hidden" name="id" value="{{ id }}"> --></td>
+
 						<td><button name="formButtons" value="update">Update</button></td>
 						<td><button name="formButtons" value="submit">Submit</button></td>
 					</tr>
